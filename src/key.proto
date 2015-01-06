@@ -1,0 +1,12 @@
+package np;
+option optimize_for = LITE_RUNTIME;
+message packet_t
+{
+   message key_t
+   {
+	  required uint32 key = 1;
+	  required fixed32 value = 2;
+   }
+   required uint32 dev_id = 1;
+   repeated key_t keys = 2;
+}
