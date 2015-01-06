@@ -3,19 +3,26 @@ project(netput-tests)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+function(copy_target_to_target_dir trg_from trg_to)
+	add_custom_command(TARGET ${trg_to} POST_BUILD
+		DEPENDS ${trg_from}
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"$<TARGET_FILE:${trg_from}>"
+			"$<TARGET_FILE_DIR:${trg_to}>"
+	)
+endfunction(copy_target_to_target_dir)
+
 enable_testing()
 find_package(GTest REQUIRED)
 
 add_executable(test_dyn_properties test_dyn_properties.cpp)
 target_link_libraries(test_dyn_properties ${GTEST_BOTH_LIBRARIES} netput)
-target_include_directories(test_dyn_properties
-   PRIVATE ${GTEST_INCLUDE_DIRS}
-)
-
+target_include_directories(test_dyn_properties PRIVATE ${GTEST_INCLUDE_DIRS})
 add_test(netput-tests test_dyn_properties)
+copy_target_to_target_dir(netput test_dyn_properties)
 
-add_custom_command(TARGET test_dyn_properties POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:netput>"
-        "$<TARGET_FILE_DIR:test_dyn_properties>"
-)
+add_executable(test_dyn_loader test_dyn_loader.cpp)
+target_link_libraries(test_dyn_loader ${GTEST_BOTH_LIBRARIES} netput)
+target_include_directories(test_dyn_loader PRIVATE ${GTEST_INCLUDE_DIRS})
+add_test(netput-tests test_dyn_loader)
+copy_target_to_target_dir(netput test_dyn_loader)

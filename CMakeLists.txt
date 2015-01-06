@@ -9,14 +9,16 @@ find_package(Boost REQUIRED COMPONENTS system)
 find_package(Protobuf REQUIRED)
 
 set(cpps
-   src/loader.cpp
+   src/loader.c
    src/dyn_properties.c
-   src/dyn_loader.hpp
+   src/dyn_loader_win.c
 )
 
 set(hpps
    include/netput/netput.h
+   include/netput/loader.h
    include/netput/dyn_properties.h
+   include/netput/dyn_loader.h
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})

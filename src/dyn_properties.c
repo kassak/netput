@@ -39,7 +39,7 @@ static void dp_free(void * ptr, const dyn_prop_allocator_t * alloc)
 
 static char * dp_strdup(const char * str, const dyn_prop_allocator_t * alloc)
 {
-   size_t sz = strnlen(str, 1000000000);
+   size_t sz = strlen(str);
    char * res = (char*)dp_malloc(sz+1, alloc);
    memcpy(res, str, sz+1);
    res[sz] = '\0';

@@ -8,7 +8,7 @@
       #define DYN_PROP_API __declspec(dllimport)
    #endif
 #else
-   #efine DYN_PROP_API
+   #define DYN_PROP_API
 #endif
 
 #ifdef __cplusplus
