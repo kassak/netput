@@ -29,6 +29,12 @@ namespace np
       }
    };
 
+   template<class T>
+   netput_sink_desc_t make_sink_impl_desc(T * impl)
+   {
+      return sink_impl_t<T>::desc(impl);
+   }
+
    struct sink_wrapper_t
    {
       sink_wrapper_t(){}
@@ -37,17 +43,26 @@ namespace np
       {
       }
 
-      void set_key(uint32_t key, uint32_t value)
+      void set_key(uint32_t key, uint32_t value) const
       {
          desc_.set_key(key, value, desc_.data);
       }
-      void set_device(uint32_t dev_id)
+      void set_device(uint32_t dev_id) const
       {
          desc_.set_device(dev_id, desc_.data);
       }
-      void flush_device()
+      void flush_device() const
       {
          desc_.flush_device(desc_.data);
+      }
+
+      netput_sink_desc_t & desc()
+      {
+         return desc_;
+      }
+      const netput_sink_desc_t & desc() const
+      {
+         return desc_;
       }
    private:
       netput_sink_desc_t desc_;

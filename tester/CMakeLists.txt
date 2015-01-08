@@ -27,9 +27,6 @@ target_include_directories(netput-tester
    PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
-message("aaaa            ${Boost_LIBRARIES}")
-
-
 if(opt_sink_vjoy_build_tests)
    add_subdirectory(tests)
 endif(opt_sink_vjoy_build_tests)

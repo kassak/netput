@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include <netput/netput.hpp>
+#include <netput/dyn_properties.h>
 #include <netput/logging.hpp>
 
 struct processor_t
@@ -137,3 +138,18 @@ private:
    np::log::logger_t log_;
 };
 
+extern "C" __declspec(dllexport) int create_sink(const dyn_property_t * prop, netput_sink_desc_t * res)
+{
+   size_t dev_id = 1;
+   if(const dyn_property_t * dev_p = dyn_prop_mapping_find(prop, "device_id"))
+      if(const char * dev_s = dyn_prop_get_string(dev_p))
+         dev_id = std::strtoul(dev_s, NULL, 10);
+   processor_t * proc = new processor_t(dev_id);
+   *res = np::make_sink_impl_desc(proc);
+   return 1;
+}
+
+extern "C" __declspec(dllexport) void free_sink(netput_sink_desc_t * res)
+{
+   delete static_cast<processor_t*>(res->data);
+}

@@ -13,7 +13,7 @@ DYN_LOADER_API dyn_loader_module_t * dyn_loader_load_module(const char * path)
    wchar_t * wpath = utf8_to_wide(path);
    if(!wpath)
       return NULL;
-   hmod = LoadLibraryW(wpath);
+   hmod = LoadLibraryExW(wpath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
    free(wpath);
    if(hmod)
    {

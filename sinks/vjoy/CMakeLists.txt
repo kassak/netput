@@ -34,8 +34,11 @@ target_include_directories(netput-sink-vjoy
            ${Boost_INCLUDE_DIRS}
 )
 
-message("aaaa            ${Boost_LIBRARIES}")
-
+add_custom_command(TARGET netput-sink-vjoy POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${vJoy_DLL}"
+      "$<TARGET_FILE_DIR:netput-sink-vjoy>"
+)
 
 if(opt_sink_vjoy_build_tests)
    add_subdirectory(tests)

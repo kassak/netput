@@ -31,11 +31,11 @@ static void flush_device_wrapper(void * data)
    wdata->chain.flush_device(wdata->chain.data);
 }
 
-NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * settings
+NETPUT_API int netput_load_sink(const dyn_property_t * settings
    , netput_sink_desc_t * res)
 {
    int fres = 0;
-   const dyn_property_t * module = dyn_prop_find_child(settings, "module");
+   const dyn_property_t * module = dyn_prop_mapping_find(settings, "module");
    if(module && dyn_prop_get_type(module) == DYN_PROP_STRING)
    {
       dyn_loader_module_t * lib = dyn_loader_load_module(dyn_prop_get_string(module));
@@ -46,10 +46,10 @@ NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * set
       deleter_t del;
       if(!lib)
          return 0;
-      if(node = dyn_prop_find_child(settings, "factory_name"))
+      if(node = dyn_prop_mapping_find(settings, "factory_name"))
          if(dyn_prop_get_type(node) == DYN_PROP_STRING)
             factory_name = dyn_prop_get_string(node);
-      if(node = dyn_prop_find_child(settings, "deleter_name"))
+      if(node = dyn_prop_mapping_find(settings, "deleter_name"))
          if(dyn_prop_get_type(node) == DYN_PROP_STRING)
             deleter_name = dyn_prop_get_string(node);
       fac = (factory_t)dyn_loader_proc_address(lib, factory_name);
@@ -57,7 +57,7 @@ NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * set
       if(fac && del)
       {
          netput_sink_desc_t chain = {0};
-         if(fac(dyn_prop_find_child(settings, "config"), &chain))
+         if(fac(dyn_prop_mapping_find(settings, "config"), &chain))
          {
             sink_wrapper_data_t * wdata = (sink_wrapper_data_t *)malloc(sizeof(sink_wrapper_data_t));
             if(wdata)
@@ -73,7 +73,6 @@ NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * set
             }
          }
       }
-      dyn_loader_unload_module(lib);
    }
    return fres;
 }

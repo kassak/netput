@@ -7,6 +7,7 @@
 #  vJoy_FOUND - system has vJoy
 #  vJoy_INCLUDE_DIRS - the vJoy include directories
 #  vJoy_LIBRARIES - link these to use vJoy
+#  vJoy_DLL - vJoy dll
 
 find_path(vJoy_ROOT_DIR
   NAMES inc/vjoyinterface.h inc/public.h
@@ -22,9 +23,17 @@ if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
     NAMES vJoyInterface
     HINTS ${vJoy_ROOT_DIR}/lib/amd64
   )
+  find_file(vJoy_DLL
+    NAMES vJoyInterface.dll
+    HINTS ${vJoy_ROOT_DIR}/lib/amd64
+  )
 else("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
   find_library(vJoy_LIBRARIES
     NAMES vJoyInterface
+    HINTS ${vJoy_ROOT_DIR}/lib
+  )
+  find_file(vJoy_DLL
+    NAMES vJoyInterface.dll
     HINTS ${vJoy_ROOT_DIR}/lib
   )
 endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
