@@ -17,8 +17,9 @@ extern "C" {
 #endif
    typedef struct netput_sink_desc_t
    {
-      void (*append)(uint32_t key, uint32_t value, void * data);
-      void (*send)(uint32_t dev_id, void * data);
+      void (*set_device)(uint32_t dev_id, void * data);
+      void (*set_key)(uint32_t key, uint32_t value, void * data);
+      void (*flush_device)(void * data);
       void * data;
    } netput_sink_desc_t;
 #ifdef __cplusplus

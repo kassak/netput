@@ -4,12 +4,12 @@ project(netput-tests)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 function(copy_target_to_target_dir trg_from trg_to)
-	add_custom_command(TARGET ${trg_to} POST_BUILD
-		DEPENDS ${trg_from}
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"$<TARGET_FILE:${trg_from}>"
-			"$<TARGET_FILE_DIR:${trg_to}>"
-	)
+   add_custom_command(TARGET ${trg_to} POST_BUILD
+      DEPENDS ${trg_from}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+         "$<TARGET_FILE:${trg_from}>"
+         "$<TARGET_FILE_DIR:${trg_to}>"
+   )
 endfunction(copy_target_to_target_dir)
 
 enable_testing()

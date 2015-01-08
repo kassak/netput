@@ -9,18 +9,23 @@ namespace np
       static netput_sink_desc_t desc(Impl * impl)
       {
          netput_sink_desc_t d;
-         d.append = &sink_impl_t<Impl>::append;
-         d.send = &sink_impl_t<Impl>::send;
+         d.set_key = &sink_impl_t<Impl>::set_key;
+         d.set_device = &sink_impl_t<Impl>::set_device;
+         d.flush_device = &sink_impl_t<Impl>::flush_device;
          d.data = static_cast<void*>(impl);
          return d;
       }
-      static void append(uint32_t key, uint32_t value, void * data)
+      static void set_key(uint32_t key, uint32_t value, void * data)
       {
-         static_cast<Impl*>(data)->append(key, value);
+         static_cast<Impl*>(data)->set_key(key, value);
       }
-      static void send(uint32_t dev_id, void * data)
+      static void set_device(uint32_t dev_id, void * data)
       {
-         static_cast<Impl*>(data)->send(dev_id);
+         static_cast<Impl*>(data)->set_device(dev_id);
+      }
+      static void flush_device(void * data)
+      {
+         static_cast<Impl*>(data)->flush_device();
       }
    };
 
@@ -32,13 +37,17 @@ namespace np
       {
       }
 
-      void append(uint32_t key, uint32_t value)
+      void set_key(uint32_t key, uint32_t value)
       {
-         desc_.append(key, value, desc_.data);
+         desc_.set_key(key, value, desc_.data);
       }
-      void send(uint32_t dev_id)
+      void set_device(uint32_t dev_id)
       {
-         desc_.send(dev_id, desc_.data);
+         desc_.set_device(dev_id, desc_.data);
+      }
+      void flush_device()
+      {
+         desc_.flush_device(desc_.data);
       }
    private:
       netput_sink_desc_t desc_;

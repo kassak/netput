@@ -13,16 +13,22 @@ typedef struct sink_wrapper_data_t
    netput_sink_desc_t chain;
 } sink_wrapper_data_t;
 
-static void append_wrapper(uint32_t key, uint32_t value, void * data)
+static void set_key_wrapper(uint32_t key, uint32_t value, void * data)
 {
    sink_wrapper_data_t * wdata = (sink_wrapper_data_t *)data;
-   wdata->chain.append(key, value, wdata->chain.data);
+   wdata->chain.set_key(key, value, wdata->chain.data);
 }
 
-static void send_wrapper(uint32_t dev_id, void * data)
+static void set_device_wrapper(uint32_t dev_id, void * data)
 {
    sink_wrapper_data_t * wdata = (sink_wrapper_data_t *)data;
-   wdata->chain.send(dev_id, wdata->chain.data);
+   wdata->chain.set_device(dev_id, wdata->chain.data);
+}
+
+static void flush_device_wrapper(void * data)
+{
+   sink_wrapper_data_t * wdata = (sink_wrapper_data_t *)data;
+   wdata->chain.flush_device(wdata->chain.data);
 }
 
 NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * settings
@@ -56,8 +62,9 @@ NETPUT_API int netput_load_sink(const char * library, const dyn_property_t * set
             sink_wrapper_data_t * wdata = (sink_wrapper_data_t *)malloc(sizeof(sink_wrapper_data_t));
             if(wdata)
             {
-               res->append = &append_wrapper;
-               res->send = &send_wrapper;
+               res->set_key = &set_key_wrapper;
+               res->set_device = &set_device_wrapper;
+               res->flush_device = &flush_device_wrapper;
                wdata->mod = lib;
                wdata->chain = chain;
                wdata->deleter = del;

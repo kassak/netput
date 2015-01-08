@@ -4,18 +4,23 @@ project(netput)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(opt_build_tests "Build unit tests" OFF)
+option(opt_build_tester_app "Build tester app" OFF)
 
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS)
 find_package(Protobuf REQUIRED)
+find_package(LibYaml REQUIRED)
+add_definitions(-DYAML_DECLARE_STATIC)
 
 set(cpps
    src/loader.c
+   src/config_parser.c
    src/dyn_properties.c
    src/dyn_loader_win.c
 )
 
 set(hpps
    include/netput/netput.h
+   include/netput/config_parser.h
    include/netput/loader.h
    include/netput/dyn_properties.h
    include/netput/dyn_loader.h
@@ -32,13 +37,21 @@ add_library(netput SHARED
 target_link_libraries(netput
    PRIVATE ${PROTOBUF_LIBRARIES}
            ${Boost_LIBRARIES}
+           ${LibYaml_LIBRARIES}
 )
 target_include_directories(netput
    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
    PRIVATE ${PROTOBUF_INCLUDE_DIRS}
            ${Boost_INCLUDE_DIRS}
+           ${LibYaml_INCLUDE_DIRS}
 )
 
 if(opt_build_tests)
-	add_subdirectory(tests)
+   add_subdirectory(tests)
 endif(opt_build_tests)
+
+if(opt_build_tester_app)
+   add_subdirectory(tester)
+endif(opt_build_tester_app)
+
+add_subdirectory(sinks)

@@ -1,27 +1,11 @@
 #include <netput/dyn_loader.h>
 #include <windows.h>
+#include "tricks.h"
 
 struct dyn_loader_module_t
 {
    HMODULE hmod;
 };
-
-static wchar_t * utf8_to_wide(const char * s)
-{
-   wchar_t * res;
-
-   int sz = MultiByteToWideChar(CP_UTF8, 0, s, -1, NULL, 0);
-   if(sz <= 0)
-      return NULL;
-   res = (wchar_t*)malloc(sz*sizeof(wchar_t));
-   sz = MultiByteToWideChar(CP_UTF8, 0, s, -1, res, sz);
-   if(sz <= 0)
-   {
-      free(res);
-      return NULL;
-   }
-   return res;
-}
 
 DYN_LOADER_API dyn_loader_module_t * dyn_loader_load_module(const char * path)
 {
