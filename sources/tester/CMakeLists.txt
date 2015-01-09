@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(netput-tester)
+project(netput-source-tester)
+set(TARGET_NAME netput-source-tester)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -14,19 +15,16 @@ set(cpps
 set(hpps
 )
 
-add_executable(netput-tester
+add_executable(${TARGET_NAME}
    ${cpps} ${hpps}
 )
 
-target_link_libraries(netput-tester
+target_link_libraries(${TARGET_NAME}
    PRIVATE netput
            ${Boost_LIBRARIES}
 )
-target_include_directories(netput-tester
+target_include_directories(${TARGET_NAME}
    PUBLIC 
    PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
-if(opt_sink_vjoy_build_tests)
-   add_subdirectory(tests)
-endif(opt_sink_vjoy_build_tests)

@@ -4,7 +4,6 @@ project(netput)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(opt_build_tests "Build unit tests" OFF)
-option(opt_build_tester_app "Build tester app" OFF)
 
 find_package(Boost REQUIRED COMPONENTS)
 find_package(Protobuf REQUIRED)
@@ -50,8 +49,5 @@ if(opt_build_tests)
    add_subdirectory(tests)
 endif(opt_build_tests)
 
-if(opt_build_tester_app)
-   add_subdirectory(tester)
-endif(opt_build_tester_app)
-
 add_subdirectory(sinks)
+add_subdirectory(sources)
