@@ -15,6 +15,22 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_org_netput_Netput_loadSink
   (JNIEnv *, jclass, jobject);
 
+/*
+ * Class:     org_netput_Netput
+ * Method:    parseConfigFile
+ * Signature: ([B)Lorg/netput/DynProperty;
+ */
+JNIEXPORT jobject JNICALL Java_org_netput_Netput_parseConfigFile
+  (JNIEnv *, jclass, jbyteArray);
+
+/*
+ * Class:     org_netput_Netput
+ * Method:    parseConfigString
+ * Signature: ([B)Lorg/netput/DynProperty;
+ */
+JNIEXPORT jobject JNICALL Java_org_netput_Netput_parseConfigString
+  (JNIEnv *, jclass, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif
