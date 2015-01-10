@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="netput-java" basedir="." default="jar">
+   <description>
+      This is the build script to compile and deploy the netput-java project.
+   </description>
+   
+   <!--property name="version" value="${cmake-version}"/-->
+   <property name="src" value="${basedir}/src/java"/>
+   <property name="jni-src" value="${basedir}/src/jni"/>
+   <property name="bin" value="${cmake-outdir}/bin" />
+   <property name="doc" value="${cmake-outdir}/javadoc" />
+   
+   <macrodef name="create-jar" description="create jar file">
+      <attribute name="filename" />
+      <sequential>
+         <jar destfile="@{filename}">
+            <fileset dir="${bin}">
+               <include name="org/**" />
+               <include name="lib/**/lib*.so"/>
+               <include name="lib/**/*.dll"/>
+               <include name="lib/**/*.jnilib"/>
+            </fileset>
+            <manifest>
+               <attribute name="Built-By" value="kassak" />
+            </manifest>
+         </jar>
+      </sequential>
+   </macrodef>
+
+   <macrodef name="check-property">
+      <attribute name="name"/>
+      <attribute name="prop" default="@{name}"/>
+      <sequential>
+         <fail message="You must set property '@{name}'">
+            <condition>
+               <not><isset property="@{prop}"/></not>
+            </condition>
+         </fail>
+      </sequential>
+   </macrodef>   
+   
+   <target name="prepare" description="create directories needed for compilation">
+      <check-property name="cmake-outdir"/>
+      <mkdir dir="${bin}" />
+   </target>
+   <target name="compile" depends="prepare" description="compile java code">
+      <javac destdir="${bin}" encoding="utf-8" source="1.5" compiler="javac1.5" target="1.5" fork="yes">
+         <src path="${src}" />
+      </javac>
+   </target>
+   <target name="javah" depends="compile" description="run javah">
+      <javah destdir="${jni-src}" force="yes">
+         <class name="org.netput.Netput" />
+         <classpath>
+            <pathelement path="${bin}" />
+         </classpath>
+      </javah>
+      <javah destdir="${jni-src}" force="yes">
+         <class name="org.netput.DynProperty" />
+         <classpath>
+            <pathelement path="${bin}" />
+         </classpath>
+      </javah>
+      <javah destdir="${jni-src}" force="yes">
+         <class name="org.netput.Sink" />
+         <classpath>
+            <pathelement path="${bin}" />
+         </classpath>
+      </javah>
+   </target>
+   <target name="jar" depends="compile" description="create jar">
+      <check-property name="cmake-netput-lib"/>
+      <check-property name="cmake-netput-jni-lib"/>
+      <check-property name="cmake-jar-target"/>
+
+      <delete dir="${bin}/lib"/>
+      <copy file="${cmake-netput-lib}" todir="${bin}/lib"/>
+      <copy file="${cmake-netput-jni-lib}" todir="${bin}/lib"/>
+      <create-jar filename="${cmake-jar-target}" />
+   </target>
+
+</project>

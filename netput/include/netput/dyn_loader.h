@@ -7,7 +7,7 @@
       #define DYN_LOADER_API __declspec(dllimport)
    #endif
 #else
-   #efine DYN_LOADER_API
+   #define DYN_LOADER_API
 #endif
 
 #ifdef __cplusplus
@@ -19,7 +19,6 @@ extern "C" {
    DYN_LOADER_API void dyn_loader_unload_module(dyn_loader_module_t * module);
    
    DYN_LOADER_API void* dyn_loader_proc_address(const dyn_loader_module_t * module, const char * name);
-   DYN_LOADER_API int dyn_loader_last_error();
 #ifdef __cplusplus
 }
 #endif

@@ -36,8 +36,4 @@ DYN_LOADER_API void* dyn_loader_proc_address(const dyn_loader_module_t * module,
 {
    return GetProcAddress(module->hmod, name);
 }
-DYN_LOADER_API int dyn_loader_last_error()
-{
-   return GetLastError();
-}
 
