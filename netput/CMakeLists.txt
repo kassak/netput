@@ -63,3 +63,5 @@ target_include_directories(netput
 if(opt_netput_build_tests)
    add_subdirectory(tests)
 endif(opt_netput_build_tests)
+
+netput_install_default(netput)

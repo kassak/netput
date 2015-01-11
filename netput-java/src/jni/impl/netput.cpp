@@ -1,27 +1,23 @@
 #include "../org_netput_Netput.h"
 #include "storage.h"
+#include "exceptions.h"
 #include <netput/loader.h>
 #include <netput/dyn_properties.h>
 #include <netput/config_parser.h>
 
-static void throw_invalid_argument()
+static void throw_sink_load_failed(JNIEnv * env, const char * msg)
 {
+   throw_exception_message(env, "org/netput/Netput$SinkLoadFailedException", msg);
 }
 
-static void throw_class_not_found()
+static void throw_illegal_argument(JNIEnv * env, const char * message)
 {
+   throw_exception_message(env, "java/lang/IllegalArgumentException", message);
 }
 
-static void throw_sink_load_failed()
+static void throw_config_parse_failed(JNIEnv * env, const char * msg)
 {
-}
-
-static void throw_no_such_method()
-{
-}
-
-static void throw_construction_fail()
-{
+   throw_exception_message(env, "org/netput/Netput$ConfigParseFailedException", msg);
 }
 
 static void sink_deleter(netput_sink_desc_t & sink)
@@ -42,34 +38,19 @@ JNIEXPORT jobject JNICALL Java_org_netput_Netput_loadSink
       prop = *p;
    if(!prop)
    {
-      throw_invalid_argument();
+      throw_illegal_argument(env, "props are empty");
       return 0;
    }
    netput_sink_desc_t res;
    if(!netput_load_sink(prop, &res))
    {
-      throw_sink_load_failed();
+      throw_sink_load_failed(env, "unable to load sink");
       return 0;
    }
-   jclass sink_cls = env->FindClass("org/netput/Sink");
-   if(!sink_cls)
-   {
-      netput_free_sink(&res);
-      throw_class_not_found();
-      return 0;
-   }
-   jmethodID sink_constructor = env->GetMethodID(sink_cls, "<init>", "()V");
-   if(!sink_constructor)
-   {
-      netput_free_sink(&res);
-      throw_no_such_method();
-      return 0;
-   }
-   jobject sink_obj = env->NewObject(sink_cls, sink_constructor);
+   jobject sink_obj = create_object(env, "org/netput/Sink", "()V");
    if(!sink_obj)
    {
       netput_free_sink(&res);
-      throw_construction_fail();
       return 0;
    }
    new_native_ptr<netput_sink_desc_t>(env, sink_obj);
@@ -82,26 +63,14 @@ JNIEXPORT jobject JNICALL Java_org_netput_Netput_loadSink
 static jobject parse_config_internal(JNIEnv * env, dyn_property_t * prop)
 {
    if(!prop)
+   {
+      throw_config_parse_failed(env, "failed to parse config");
       return NULL;
-   jclass prop_cls = env->FindClass("org/netput/DynProperty");
-   if(!prop_cls)
-   {
-      dyn_prop_free(prop);
-      throw_class_not_found();
-      return 0;
    }
-   jmethodID prop_constructor = env->GetMethodID(prop_cls, "<init>", "()V");
-   if(!prop_constructor)
-   {
-      dyn_prop_free(prop);
-      throw_no_such_method();
-      return 0;
-   }
-   jobject prop_obj = env->NewObject(prop_cls, prop_constructor);
+   jobject prop_obj = create_object(env, "org/netput/DynProperty", "()V");
    if(!prop_obj)
    {
       dyn_prop_free(prop);
-      throw_construction_fail();
       return 0;
    }
    new_native_ptr<dyn_property_t*>(env, prop_obj);
@@ -111,20 +80,31 @@ static jobject parse_config_internal(JNIEnv * env, dyn_property_t * prop)
    return prop_obj;
 }
 
+char * copy_string(JNIEnv * env, jbyteArray s)
+{
+   jbyte * bytes = env->GetByteArrayElements(s, NULL);
+   jsize len = env->GetArrayLength(s);
+   char * res = (char*)malloc(len + 1);
+   memcpy(res, bytes, len);
+   res[len] = '\0';
+   env->ReleaseByteArrayElements(s, bytes, JNI_ABORT);
+   return res;
+}
+
 JNIEXPORT jobject JNICALL Java_org_netput_Netput_parseConfigFile
   (JNIEnv * env, jclass, jbyteArray path)
 {
-   jbyte * bytes = env->GetByteArrayElements(path, NULL);
-   dyn_property_t * prop = netput_parse_config_file(reinterpret_cast<const char *>(bytes));
-   env->ReleaseByteArrayElements(path, bytes, JNI_ABORT);
+   char * s = copy_string(env, path);
+   dyn_property_t * prop = netput_parse_config_file(s);
+   free(s);
    return parse_config_internal(env, prop);
 }
 
 JNIEXPORT jobject JNICALL Java_org_netput_Netput_parseConfigString
   (JNIEnv * env, jclass, jbyteArray content)
 {
-   jbyte * bytes = env->GetByteArrayElements(content, NULL);
-   dyn_property_t * prop = netput_parse_config_file(reinterpret_cast<const char *>(bytes));
-   env->ReleaseByteArrayElements(content, bytes, JNI_ABORT);
+   char * s = copy_string(env, content);
+   dyn_property_t * prop = netput_parse_config_string(s);
+   free(s);
    return parse_config_internal(env, prop);
 }

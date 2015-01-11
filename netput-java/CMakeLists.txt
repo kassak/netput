@@ -38,14 +38,26 @@ set(TARGET_NAME netput-java)
 
 find_package(Ant REQUIRED)
 
-add_custom_target(${TARGET_NAME} ALL COMMAND ${CMAKE_COMMAND} -E env
-  JAVA_HOME=${ANT_JAVA_HOME} #${CMAKE_COMMAND} -E environment
-  ${ANT_EXEC_SCRIPT}
-  -f "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
-  "-Dcmake-outdir=${CMAKE_CURRENT_BINARY_DIR}"
-  "-Dcmake-jar-target=${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.jar"
-  "-Dcmake-netput-lib=$<TARGET_FILE:netput>"
-  "-Dcmake-netput-jni-lib=$<TARGET_FILE:netput-jni>"
-  jar
-  DEPENDS netput-jni
- )
+file(GLOB_RECURSE java_sources src/java/*.java)
+list(APPEND java_sources
+   build.xml
+)
+
+set(netput-java-jar "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.jar")
+add_custom_target(${TARGET_NAME} ALL
+   COMMAND ${CMAKE_COMMAND} -E env
+      JAVA_HOME=${ANT_JAVA_HOME} #${CMAKE_COMMAND} -E environment
+      ${ANT_EXEC_SCRIPT}
+      -f "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
+      "-Dcmake-outdir=${CMAKE_CURRENT_BINARY_DIR}"
+      "-Dcmake-jar-target=${netput-java-jar}"
+      jar
+   SOURCES ${java_sources}
+)
+
+copy_target_to_dir(netput netput-java ${CMAKE_CURRENT_BINARY_DIR})
+copy_target_to_dir(netput-jni netput-java ${CMAKE_CURRENT_BINARY_DIR})
+
+netput_install_default(netput-jni)
+netput_install_files(BIN ${netput-java-jar})
+

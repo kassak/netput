@@ -28,3 +28,4 @@ target_include_directories(${TARGET_NAME}
    PRIVATE ${Boost_INCLUDE_DIRS}
 )
 
+netput_install_default(netput-source-tester)

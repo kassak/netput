@@ -43,3 +43,5 @@ add_custom_command(TARGET netput-sink-vjoy POST_BUILD
 if(opt_sink_vjoy_build_tests)
    add_subdirectory(tests)
 endif(opt_sink_vjoy_build_tests)
+
+netput_install_default(netput-sink-vjoy)

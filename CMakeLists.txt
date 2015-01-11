@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.11)
 project(netput-all)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(NetputUtil)
 
 option(opt_build_netput_java "Build netput java library" OFF)
 

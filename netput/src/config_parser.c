@@ -230,6 +230,7 @@ DYN_PROP_API dyn_property_t * netput_parse_config_file(const char * path)
    yaml_parser_t parser;
    yaml_parser_initialize(&parser);
 
+   printf("%s\n", path);
    input = fopen_trick(path, "rb");
    if(!input)
       return NULL;

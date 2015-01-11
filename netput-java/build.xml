@@ -21,7 +21,8 @@
                <include name="lib/**/*.jnilib"/>
             </fileset>
             <manifest>
-               <attribute name="Built-By" value="kassak" />
+               <attribute name="Built-By" value="kassak"/>
+               <attribute name="Main-Class" value="org/netput/Runner"/>
             </manifest>
          </jar>
       </sequential>
@@ -69,13 +70,8 @@
       </javah>
    </target>
    <target name="jar" depends="compile" description="create jar">
-      <check-property name="cmake-netput-lib"/>
-      <check-property name="cmake-netput-jni-lib"/>
       <check-property name="cmake-jar-target"/>
 
-      <delete dir="${bin}/lib"/>
-      <copy file="${cmake-netput-lib}" todir="${bin}/lib"/>
-      <copy file="${cmake-netput-jni-lib}" todir="${bin}/lib"/>
       <create-jar filename="${cmake-jar-target}" />
    </target>
 
