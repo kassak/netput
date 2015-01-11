@@ -55,8 +55,10 @@ add_custom_target(${TARGET_NAME} ALL
    SOURCES ${java_sources}
 )
 
-copy_target_to_dir(netput netput-java ${CMAKE_CURRENT_BINARY_DIR})
-copy_target_to_dir(netput-jni netput-java ${CMAKE_CURRENT_BINARY_DIR})
+set_property(TARGET ${TARGET_NAME} PROPERTY TARGET_FILE ${netput-java-jar})
+
+copy_target_to_dir(netput netput-java ${CMAKE_CURRENT_BINARY_DIR} POST_BUILD)
+copy_target_to_dir(netput-jni netput-java ${CMAKE_CURRENT_BINARY_DIR} POST_BUILD)
 
 netput_install_default(netput-jni)
 netput_install_files(BIN ${netput-java-jar})

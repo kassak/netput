@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-function(copy_target_to_dir trg_from trg_to dir)
-   add_custom_command(TARGET ${trg_to} POST_BUILD
+function(copy_target_to_dir trg_from trg_to dir when)
+   add_custom_command(TARGET ${trg_to} ${when}
       DEPENDS ${trg_from} ${trg_to}
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
          "$<TARGET_FILE:${trg_from}>"
@@ -9,13 +9,17 @@ function(copy_target_to_dir trg_from trg_to dir)
    )
 endfunction(copy_target_to_dir)
 
-function(copy_target_to_target_dir trg_from trg_to)
-   add_custom_command(TARGET ${trg_to} POST_BUILD
+function(copy_target_to_dir2 trg_from trg_to dir when)
+   add_custom_command(TARGET ${trg_to} ${when}
       DEPENDS ${trg_from} ${trg_to}
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-         "$<TARGET_FILE:${trg_from}>"
-         "$<TARGET_FILE_DIR:${trg_to}>"
+         "$<TARGET_PROPERTY:${trg_from},TARGET_FILE>"
+         "${dir}"
    )
+endfunction(copy_target_to_dir2)
+
+function(copy_target_to_target_dir trg_from trg_to when)
+   copy_target_to_dir("${trg_from}" "${trg_to}" "$<TARGET_FILE_DIR:${trg_to}>" "${when}")
 endfunction(copy_target_to_target_dir)
 
 function(netput_install_default)
