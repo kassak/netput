@@ -4,43 +4,44 @@ project(netput-source-android)
 set(TARGET_NAME netput-source-android)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(Ant REQUIRED)
+find_package(Gradle REQUIRED)
 find_package(AndroidSDK REQUIRED)
 
-set(dep_libs "${CMAKE_CURRENT_SOURCE_DIR}/libs")
+set(dep_libs "${CMAKE_CURRENT_BINARY_DIR}/output-libs/")
+set(target_dep_libs "${dep_libs}/${ANDROID_ABI}")
 
 set(target_file "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.apk")
 
-#Need to override
-# - sdk.dir
-# - out.dir
-# - gen.absolute.dir
-# - jar.libs.dir
-# - native.libs.absolute.dir
-# - out.final.file
+file(GLOB_RECURSE sources *)
 
-set(build_overrides
-   "-Dsdk.dir=${ANDROID_SDK_ROOT}"
-   "-Dout.dir=${CMAKE_CURRENT_BINARY_DIR}/out"
-   "-Dgen.absolute.dir=${CMAKE_CURRENT_BINARY_DIR}/gen"
-   "-Djar.libs.dir=${dep_libs}"
-   "-Dnative.libs.absolute.dir=${dep_libs}"
-   
-   "-Dout.final.file=${target_file}"
+set(netput-source-android-apk "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.apk")
+
+add_custom_target("${TARGET_NAME}-files" ALL)
+add_custom_target(${TARGET_NAME} ALL DEPENDS ${netput-source-android-apk}
+   SOURCES ${sources}
 )
 
-add_custom_target(${TARGET_NAME} ALL COMMAND ${CMAKE_COMMAND} -E env
-  JAVA_HOME=${ANT_JAVA_HOME} #${CMAKE_COMMAND} -E environment
-  ${ANT_EXEC_SCRIPT}
-  -f "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
-  ${build_overrides}
-  debug
+file(MAKE_DIRECTORY ${target_dep_libs})
+copy_target_to_dir(netput "${TARGET_NAME}-files" ${target_dep_libs} PRE_BUILD)
+copy_target_to_dir(netput-jni "${TARGET_NAME}-files" ${target_dep_libs} PRE_BUILD)
+copy_target_to_dir2(netput-java "${TARGET_NAME}-files" ${dep_libs} PRE_BUILD)
+
+set_property(TARGET ${TARGET_NAME} PROPERTY TARGET_FILE ${netput-source-android-apk})
+
+add_custom_command(OUTPUT ${netput-source-android-apk}
+   COMMAND ${CMAKE_COMMAND} -E env
+      JAVA_HOME=${GRADLE_JAVA_HOME}
+      ${GRADLE_EXEC_SCRIPT}
+      "--project-cache-dir=${CMAKE_CURRENT_BINARY_DIR}/.gradle"
+      -p "${CMAKE_CURRENT_SOURCE_DIR}"
+      "-Pcmake.out=${CMAKE_CURRENT_BINARY_DIR}"
+      "-Pcmake.libs=${dep_libs}"
+      "-Pcmake.apk=${netput-source-android-apk}"
+      cmakeBuildArmDebug
+   COMMENT "Building apk..."
+   DEPENDS ${sources} "${TARGET_NAME}-files"
 )
 
-set_property(TARGET ${TARGET_NAME} PROPERTY TARGET_FILE ${target_file})
 
-copy_target_to_dir(netput ${TARGET_NAME} ${dep_libs} PRE_BUILD)
-copy_target_to_dir(netput-jni ${TARGET_NAME} ${dep_libs} PRE_BUILD)
-copy_target_to_dir2(netput-java ${TARGET_NAME} ${dep_libs} PRE_BUILD)
+netput_install_files(BIN ${netput-source-android-apk})
 
-netput_install_files(BIN ${target_file})

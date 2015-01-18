@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(netput-java)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
 if(ANDROID) # it is available by default
 #   set(JNI_INCLUDE_DIRS)
 #   set(JNI_LIBRARIES)
@@ -36,22 +34,29 @@ target_include_directories(netput-jni
 
 set(TARGET_NAME netput-java)
 
-find_package(Ant REQUIRED)
+find_package(Gradle REQUIRED)
 
 file(GLOB_RECURSE java_sources src/java/*.java)
 list(APPEND java_sources
-   build.xml
+   build.gradle
 )
 
 set(netput-java-jar "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.jar")
-add_custom_target(${TARGET_NAME} ALL
+
+add_custom_command(OUTPUT ${netput-java-jar}
    COMMAND ${CMAKE_COMMAND} -E env
-      JAVA_HOME=${ANT_JAVA_HOME} #${CMAKE_COMMAND} -E environment
-      ${ANT_EXEC_SCRIPT}
-      -f "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
-      "-Dcmake-outdir=${CMAKE_CURRENT_BINARY_DIR}"
-      "-Dcmake-jar-target=${netput-java-jar}"
+      JAVA_HOME=${GRADLE_JAVA_HOME} #${CMAKE_COMMAND} -E environment
+      ${GRADLE_EXEC_SCRIPT}
+      "--project-cache-dir=${CMAKE_CURRENT_BINARY_DIR}/.gradle"
+      -p "${CMAKE_CURRENT_SOURCE_DIR}"
+      "-Pcmake.out=${CMAKE_CURRENT_BINARY_DIR}"
+      "-Pcmake.jar=${netput-java-jar}"
       jar
+   COMMENT "Building jar..."
+   DEPENDS ${java_sources}
+)
+
+add_custom_target(${TARGET_NAME} ALL DEPENDS ${netput-java-jar}
    SOURCES ${java_sources}
 )
 
